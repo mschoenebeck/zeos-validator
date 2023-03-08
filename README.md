@@ -134,7 +134,7 @@ sudo mv go-ipfs/ipfs /usr/local/bin/ipfs
 ```
 Increase Go memory buffer size:
 ```
-sysctl -w net.core.rmem_max=2500000
+sudo sysctl -w net.core.rmem_max=2500000
 ```
 Configure IPFS daemon:
 ```
@@ -164,7 +164,7 @@ exit
 # check if ipfs is running
 systemctl status ipfs
 ```
-#### TODO: add zeos as peer
+#### TODO: add zeos node as a peer?
 
 ### PostgreSQL
 This will install PostgreSQL on your machine and configure a daemon.
@@ -363,7 +363,7 @@ exit
 ```
 
 ### Enable Packages
-Head over to [bloks.io](https://bloks.io/account/dappservices?loadContract=true&tab=Actions&account=dappservices&scope=dappservices&limit=100&table=package&action=enablepkg) and enable your packages. Import your DSP private key into Anchor and connect your account on bloks. Make sure to have enough CPU, RAM and NET on your DSP account. Then execute the `enablepkg` action with the following parameters:
+Head over to [bloks.io](https://bloks.io/account/dappservices?loadContract=true&tab=Actions&account=dappservices&scope=dappservices&limit=100&table=package&action=enablepkg) and enable your packages. Import your DSP private key into Anchor and connect your account on bloks. Make sure to have enough CPU, RAM and NET available on your DSP account. Then execute the `enablepkg` action with the following parameters:
 ```
 provider: <YOUR-DSP-ACCOUNT-HERE>
 package_id: package1
