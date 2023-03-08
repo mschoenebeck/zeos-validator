@@ -140,7 +140,10 @@ wget http://dist.ipfs.io/go-ipfs/v0.4.22/go-ipfs_v0.4.22_linux-amd64.tar.gz
 tar xvfz go-ipfs_v0.4.22_linux-amd64.tar.gz
 sudo mv go-ipfs/ipfs /usr/local/bin/ipfs
 ```
-#### TODO: increase Go mem buffer size: https://github.com/quic-go/quic-go/wiki/UDP-Receive-Buffer-Size
+Increase Go memory buffer size:
+```
+sysctl -w net.core.rmem_max=2500000
+```
 Configure IPFS daemon:
 ```
 sudo su -
@@ -231,8 +234,8 @@ exit
 systemctl status ipfs-ds-postgres 
 ```
 
-### Zeus SDK
-This will install LiquidApps Zeus SDK on your machine. It depends on NodeJS which is installed first.
+### Zeus SDK (DSP node)
+This will install LiquidApps Zeus SDK on your machine and run a services node. It depends on NodeJS which is installed first.
 ```
 cd
 sudo apt-get update
@@ -265,47 +268,93 @@ exit
 Check if your DSP is up and running by going to the following URL in a web browser: `http://<IP-ADDRESS-OF-YOUR-NODE-HERE>:3115/v1/dsp/version`
 It should show something like: `2.0.8213-latest`
 
-
-
-
-
-
-
-
-
-
-
-
----
-
-How to install Janus:
-
-install:
-`sudo apt-get install libavutil-dev libavcodec-dev libavformat-dev`
-for post processing of video (https://ourcodeworld.com/articles/read/1198/how-to-join-the-audio-and-video-mjr-from-a-recorded-session-of-janus-gateway-in-ubuntu-18-04)
-
-make sure to `--enable-post-processing` when calling `./configure` when following the instructions on:
-./configure --prefix=/opt/janus --enable-post-processing
-https://github.com/meetecho/janus-gateway
-
-install libsrtp 2.2.0 as mentioned in the readme (newer versions don't seem to work as of now):
-
+## Register a DSP service package
+A ZEOS Validator should offer the following services:
+- Oracle
+- LiquidStorage
+- VRAM
+Install the zeus command line interface:
 ```
-wget https://github.com/cisco/libsrtp/archive/v2.2.0.tar.gz
-tar xfv v2.2.0.tar.gz
-cd libsrtp-2.2.0
-./configure --prefix=/usr --enable-openssl
-make shared_library && sudo make install
+cd
+sudo su -
+npm install -g @liquidapps/zeus-cmd
+```
+Create the required service packages.
+
+### Oracle
+```
+export PACKAGE=oracle
+export DSP_ACCOUNT=<YOUR-DSP-ACCOUNT-HERE>
+# active key to sign package creation trx
+export DSP_PRIVATE_KEY=<YOUR-DSP-PRIVATE-KEY-HERE>
+# customizable and unique name for your package
+export PACKAGE_ID=package1
+export EOS_CHAIN=mainnet
+# the minimum stake quantity is the amount of DAPP and/or DAPPHDL that must be staked to meet the package's threshold for use
+export MIN_STAKE_QUANTITY="10.0000"
+# package period is in seconds, so 86400 = 1 day, 3600 = 1 hour
+export PACKAGE_PERIOD=3600
+# the time to unstake is the greater of the package period remaining and the minimum unstake period, which is also in seconds
+export MIN_UNSTAKE_PERIOD=3600
+# QUOTA is the measurement for total actions allowed within the package period to be processed by the DSP.  1.0000 QUOTA = 10,000 actions. 0.0001 QUOTA = 1 action
+export QUOTA="1.0000"
+export DSP_ENDPOINT=http://89.117.58.26:3115/
+# package json uri is the link to your package's information, this is customizable without a required syntax
+export PACKAGE_JSON_URI=http://89.117.58.26:3115/package1.dsp-package.json
+# The annual inflation rate of the DAPP token may be tuned by the community. This is done by DSP's specifying a desired inflation rate during package registration. All existing packages default to the original annual inflation rate of 2.71%
+export ANNUAL_INFLATION=2.71
+
+cd $(readlink -f `which setup-dsp` | xargs dirname)/../..
+zeus register dapp-service-provider-package \
+    $PACKAGE $DSP_ACCOUNT $PACKAGE_ID \
+    --key $DSP_PRIVATE_KEY \
+    --min-stake-quantity $MIN_STAKE_QUANTITY \
+    --package-period $PACKAGE_PERIOD \
+    --quota $QUOTA \
+    --network $EOS_CHAIN \
+    --api-endpoint $DSP_ENDPOINT \
+    --package-json-uri $PACKAGE_JSON_URI \
+    --min-unstake-period $MIN_UNSTAKE_PERIOD \
+    --inflation $ANNUAL_INFLATION
 ```
 
-create systemd and log rotate file as described here:
-https://facsiaginsa.com/janus/install-janus-webrtc-server-on-ubuntu
+### IPFS
+Only need to change the package type and id and then submit again:
+```
+export PACKAGE=ipfs
+export PACKAGE_ID=package2
 
+cd $(readlink -f `which setup-dsp` | xargs dirname)/../..
+zeus register dapp-service-provider-package \
+    $PACKAGE $DSP_ACCOUNT $PACKAGE_ID \
+    --key $DSP_PRIVATE_KEY \
+    --min-stake-quantity $MIN_STAKE_QUANTITY \
+    --package-period $PACKAGE_PERIOD \
+    --quota $QUOTA \
+    --network $EOS_CHAIN \
+    --api-endpoint $DSP_ENDPOINT \
+    --package-json-uri $PACKAGE_JSON_URI \
+    --min-unstake-period $MIN_UNSTAKE_PERIOD \
+    --inflation $ANNUAL_INFLATION
+```
 
-# Postprocess videos:
-janus-pp-rec ./room-1234-user-0001-video.mjr ./video-track.webm
-janus-pp-rec ./room-1234-user-0001-audio.mjr ./audio-track.opus
-ffmpeg -i ./video-track.webm -i ./audio-track.opus  -c:v copy -c:a opus -strict experimental ./final-video.webm
-ffmpeg -i ./final-video.webm -vcodec libx264 -crf 24 final-video.avi
+### Storage
+Only need to change the package type and id and then submit again:
+```
+export PACKAGE=storage
+export PACKAGE_ID=package3
 
-# zeos-validator
+cd $(readlink -f `which setup-dsp` | xargs dirname)/../..
+zeus register dapp-service-provider-package \
+    $PACKAGE $DSP_ACCOUNT $PACKAGE_ID \
+    --key $DSP_PRIVATE_KEY \
+    --min-stake-quantity $MIN_STAKE_QUANTITY \
+    --package-period $PACKAGE_PERIOD \
+    --quota $QUOTA \
+    --network $EOS_CHAIN \
+    --api-endpoint $DSP_ENDPOINT \
+    --package-json-uri $PACKAGE_JSON_URI \
+    --min-unstake-period $MIN_UNSTAKE_PERIOD \
+    --inflation $ANNUAL_INFLATION
+exit
+```
