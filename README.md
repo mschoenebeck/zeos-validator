@@ -1,14 +1,6 @@
-
-
-
-
-
-
-
-
 # ZEOS Validator
 
-How to set up a validator node on a fresh `Ubuntu 22.04`. Your machine should have 64 GB of RAM, 500 GB to 1TB of SSD memory, several high-clock CPU cores and a broadband connection with low latency.
+How to set up a validator node on a fresh `Ubuntu 22.04`. Your machine should have 64 GB of RAM, 500 GB to 1TB of SSD memory, a fast CPU with several cores and a broadband internet connection with low latency.
 
 ## Prerequisites
 
@@ -187,7 +179,7 @@ psql
 CREATE DATABASE dsp;
 ```
 Generate a password, for instance here: [passwordsgenerator.net](https://passwordsgenerator.net/) (disable Symbols)
-The generated password should/could look like this: `ub5dcdCQU8s7XsCw`
+The generated password could look like this: `ub5dcdCQU8s7XsCw`
 ```
 CREATE USER dsp WITH ENCRYPTED PASSWORD '<YOUR-GENERATED-PASSWORD-HERE>';
 GRANT ALL PRIVILEGES ON DATABASE dsp to dsp;
@@ -268,7 +260,7 @@ exit
 Check if your DSP is up and running by going to the following URL in a web browser: `http://<IP-ADDRESS-OF-YOUR-NODE-HERE>:3115/v1/dsp/version`
 It should show something like: `2.0.8213-latest`
 
-## Register a DSP service package
+## Register DSP service packages
 A ZEOS Validator should offer the following services:
 - Oracle
 - LiquidStorage
