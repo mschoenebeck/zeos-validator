@@ -271,7 +271,20 @@ cd
 sudo su -
 npm install -g @liquidapps/zeus-cmd
 ```
-Create the required service packages.
+Change `line 42` in the following file:
+```
+nano $(readlink -f `which setup-dsp` | xargs dirname)/../seed-eos/tools/eos/networks.js
+```
+from:
+```
+        host: 'bp.cryptolions.io',
+```
+to:
+```
+        host: 'localhost',
+```
+to make zeus use your own node to execute transactions (`bp.cryptolions.io` is down).
+Now let's create the for the ZEOS Shielded Protocol required service packages.
 
 ### Oracle
 ```
