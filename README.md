@@ -188,7 +188,7 @@ CREATE INDEX IF NOT EXISTS blocks_key_text_pattern_ops_idx ON blocks (key text_p
 exit
 exit
 ```
-`Go` should already be installed from previous nodeos setup.
+`Go` should already be installed from previous nodeos setup. Execute:
 ```
 go install github.com/alanshaw/ipfs-ds-postgres@latest
 ```
@@ -316,7 +316,6 @@ Only need to change the package type and id and then submit again:
 export PACKAGE=ipfs
 export PACKAGE_ID=package2
 
-cd $(readlink -f `which setup-dsp` | xargs dirname)/../..
 zeus register dapp-service-provider-package \
     $PACKAGE $DSP_ACCOUNT $PACKAGE_ID \
     --key $DSP_PRIVATE_KEY \
@@ -336,7 +335,6 @@ Only need to change the package type and id and then submit again:
 export PACKAGE=storage
 export PACKAGE_ID=package3
 
-cd $(readlink -f `which setup-dsp` | xargs dirname)/../..
 zeus register dapp-service-provider-package \
     $PACKAGE $DSP_ACCOUNT $PACKAGE_ID \
     --key $DSP_PRIVATE_KEY \
@@ -350,3 +348,25 @@ zeus register dapp-service-provider-package \
     --inflation $ANNUAL_INFLATION
 exit
 ```
+
+### Enable Packages
+Head over to [bloks.io](https://bloks.io/account/dappservices?loadContract=true&tab=Actions&account=dappservices&scope=dappservices&limit=100&table=package&action=enablepkg) and enable your packages. Import your DSP private key into Anchor and connect your account on bloks. Make sure to have enough CPU, RAM and NET on your DSP account. Then execute the `enablepkg` action with the following parameters:
+```
+provider: <YOUR-DSP-ACCOUNT-HERE>
+package_id: package1
+service: oracleservic
+```
+Execute the same action for the other two packages:
+```
+provider: <YOUR-DSP-ACCOUNT-HERE>
+package_id: package2
+service: ipfsservice1
+```
+and:
+```
+provider: <YOUR-DSP-ACCOUNT-HERE>
+package_id: package3
+service: liquidstorag
+```
+
+Your packages are now registered and enabled and can be subscribed to by `thezeostoken` to increase decentralization.
